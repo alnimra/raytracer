@@ -80,11 +80,11 @@ t_color *get_color(t_obj **objs, int i)
 
 t_3dpt *get_normal_at(t_obj **objs, int i, t_3dpt *pt)
 {
-    if(ft_strcmp(objs[i]->type, "sphere") == 0)
-        return (sphere_get_normal_at((t_sphere*)objs[i]->obj, pt));
-    else if(ft_strcmp(objs[i]->type, "plane") == 0)
-        return (((t_plane*)objs[i])->obj->normal);
-        
+    if (ft_strcmp(objs[i]->type, "sphere") == 0)
+        return (sphere_get_normal_at((t_sphere *)objs[i]->obj, pt));
+    else if (ft_strcmp(objs[i]->type, "plane") == 0)
+        return (((t_plane *)objs[i]->obj)->normal);
+    return (NULL);
 }
 t_color *get_color_at(t_3dpt *insct_pos, t_3dpt *insct_dir, t_obj **objs, int winning_obj, t_light **light_sources, double accuracy, double ambient_light)
 {
@@ -92,23 +92,67 @@ t_color *get_color_at(t_3dpt *insct_pos, t_3dpt *insct_dir, t_obj **objs, int wi
     t_color *winning_obj_color;
     t_3dpt *winning_obj_normal;
     t_3dpt *light_direction;
-
+    t_color *rendered_color;
     i = 0;
     winning_obj_color = get_color(objs, winning_obj);
     winning_obj_normal = get_normal_at(objs, winning_obj, insct_pos);
+    rendered_color = col_multi(winning_obj_color, ambient_light);
     while (light_sources[i])
     {
         light_direction = normal(add(light_sources[i]->org, multi(insct_pos, -1)));
         double cos_angle = dot(winning_obj_normal, light_direction);
-        if(cos_angle > 0)
+        if (cos_angle > 0)
         {
-                int shadowed = 0;
-                t_3dpt *dist_to_light = normal(add(light_sources[i]->org, multi(insct_pos, -1)));
-                double dist_to_mag = mag(dist_to_light);
-                t_vec *shadow_vec = create_vec(insct_pos, normal(add(light_sources[i]->org, multi(insct_pos,-1))));
+            int shadowed = 0;
+            t_3dpt *dist_to_light = normal(add(light_sources[i]->org, multi(insct_pos, -1)));
+            double dist_to_light_mag = mag(dist_to_light);
+            t_vec *shadow_vec = create_vec(insct_pos, normal(add(light_sources[i]->org, multi(insct_pos, -1))));
+            int obj_i = -1;
+            //need to make num of objects;
+            double intersections_2[2];
+            while (objs[++obj_i] && !shadowed)
+                intersections_2[obj_i] = find_inscts(objs, obj_i, shadow_vec);
+            obj_i = 0;
+            while (objs[obj_i])
+            {
+                if (intersections_2[obj_i] > accuracy)
+                {
+                    if (intersections_2[obj_i] <= dist_to_light_mag)
+                        shadowed = 1;
+                    break;
+                }
+                obj_i++;
+            }
+            if(shadowed == 0)
+            {
+                rendered_color = add_col(rendered_color, col_multi(multi_col(winning_obj_color, light_sources[i]->col), cos_angle));
+                //Apply shine
+                        // ft_putstr("here");
+                        // exit(1);
+                if(winning_obj_color->prop[3] > 0 && winning_obj_color->prop[3] <= 1)
+                {
+                    //Special 0-1
+                    double dot1 = dot(multi(winning_obj_normal, -1), multi(insct_dir, -1));
+                    t_3dpt *scalar1 = multi(winning_obj_normal, dot1);
+                    t_3dpt *add1 = add(scalar1, insct_dir);
+                    t_3dpt *scalar2 = multi(add1, 2);
+                    t_3dpt *add2 = add(multi(insct_dir, -1), scalar2);
+                    t_3dpt *reflection_dir = normal(add2);
+
+                    double specular = dot(reflection_dir, light_direction);
+                    if(specular > 0)
+                    {
+                        specular = pow(specular, 10);
+                        rendered_color = add_col(rendered_color, col_multi(light_sources[i]->col, specular * winning_obj_color->prop[3]));
+                    }
+                }
+            }
+
         }
         i++;
     }
+    clip(rendered_color);
+    return rendered_color;
 }
 void scenify(t_gl *gl, t_canvas *canvas)
 {
@@ -123,8 +167,8 @@ void scenify(t_gl *gl, t_canvas *canvas)
     t_color *colors[5];
     t_vec *cam_vec;
     double aspect_ratio = (double)WIDTH / (double)HEIGHT;
-    // double ambient_light = 0.2;
-    // double accuracy = 0.000001;
+    double ambient_light = 0.2;
+    double accuracy = 0.00000001;
     double xamnt;
     double yamnt;
     double org[3];
@@ -135,7 +179,8 @@ void scenify(t_gl *gl, t_canvas *canvas)
     int winning_obj;
     t_obj **objs;
     t_light **lights;
-    lights = (t_obj **)malloc(sizeof(t_light *) * 1 + 1);
+    lights = (t_light **)malloc(sizeof(t_light *) * 1 + 1);
+    lights[1] =  0;
     objs = (t_obj **)malloc(sizeof(t_obj *) * 2 + 1);
     colors[0] = create_color(1, 1, 1, 0);
     colors[1] = create_color(0.5, 1.0, 0.5, 0.3);
@@ -178,6 +223,7 @@ void scenify(t_gl *gl, t_canvas *canvas)
             org[0] = cam->prop[0]->coord[0];
             org[1] = cam->prop[0]->coord[1];
             org[2] = cam->prop[0]->coord[2];
+            //Leaksss
             cam_vec_dir = normal(add(cam->prop[1], add(multi(cam->prop[2], xamnt - 0.5), multi(cam->prop[3], yamnt - 0.5))));
             dir[0] = cam_vec_dir->coord[0];
             dir[1] = cam_vec_dir->coord[1];
@@ -192,15 +238,15 @@ void scenify(t_gl *gl, t_canvas *canvas)
             // printf("%f", intersections[1]);
             winning_obj = get_winning_obj(intersections);
             if (winning_obj == -1)
-                store_pix(canvas, x, y, 0xFFFFFF);
+                store_pix(canvas, x, y, 0);
             else
             {
                 t_3dpt *insct_pos = add(cam_vec->comp[0], multi(cam_vec->comp[1], intersections[winning_obj]));
                 t_3dpt *insct_dir = cam_vec->comp[1];
 
-                store_color_pix(canvas, x, y, get_color_at(insct_pos, insct_dir, objs, winning_obj, light_sources, accuracy, ambient_light));
+                store_color_pix(canvas, x, y, get_color_at(insct_pos, insct_dir, objs, winning_obj, lights, accuracy, ambient_light));
             }
-            printf("%d", winning_obj);
+            //printf("%d", winning_obj);
         }
     }
     mlx_put_image_to_window(gl->lib, gl->surf, canvas->img, 0, 0);

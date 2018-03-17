@@ -29,7 +29,7 @@ double bness(t_color *color)
     return ((color->prop[0] + color->prop[1] + color->prop[2]) / 3);
 }
 
-t_color *color_multi(t_color *color, double scalar)
+t_color *col_multi(t_color *color, double scalar)
 {
     return create_color(color->prop[0] * scalar, color->prop[1] * scalar, color->prop[2] * scalar, color->prop[3]);
 }
@@ -47,4 +47,25 @@ t_color *multi_col(t_color *color1, t_color *color2)
 t_color *avg_col(t_color *color1, t_color *color2)
 {
     return create_color((color1->prop[0] + color2->prop[0]) / 2, (color1->prop[1] + color2->prop[1]) / 2, (color1->prop[2] + color2->prop[2]) / 2, color1->prop[0]);
+}
+
+void clip(t_color *color)
+{
+	double all_light;
+	double exc_light;
+
+	all_light = color->prop[0] + color->prop[1] + color->prop[2];
+	exc_light = all_light - 3;
+	if(exc_light > 0)
+	{
+		color->prop[0] += exc_light * (color->prop[0] / all_light);
+		color->prop[1] += exc_light * (color->prop[1] / all_light);
+		color->prop[2] += exc_light * (color->prop[2] / all_light);
+	}
+	color->prop[0] = (color->prop[0] > 1) ? 1 : color->prop[0];
+	color->prop[1] = (color->prop[1] > 1) ? 1 : color->prop[1];
+	color->prop[2] = (color->prop[2] > 1) ? 1 : color->prop[2];
+	color->prop[0] = (color->prop[0] < 0) ? 0 : color->prop[0];
+	color->prop[1] = (color->prop[1] < 0) ? 0 : color->prop[1];
+	color->prop[2] = (color->prop[2] < 0) ? 0 : color->prop[2];
 }

@@ -24,7 +24,7 @@ double find_intersection_sphere(t_sphere *sphere, t_vec *vec)
     b = (2 * (vec->comp[0]->coord[0] - sphere->cnt->coord[0]) * vec->comp[1]->coord[0]) + (2 * (vec->comp[0]->coord[1] - sphere->cnt->coord[1]) * vec->comp[1]->coord[1]) + (2 * (vec->comp[0]->coord[2] - sphere->cnt->coord[2]) * vec->comp[1]->coord[2]);
     c = pow(vec->comp[0]->coord[0] - sphere->cnt->coord[0], 2) + pow(vec->comp[0]->coord[1] - sphere->cnt->coord[1], 2) + pow(vec->comp[0]->coord[2] - sphere->cnt->coord[2], 2) - (sphere->rad * sphere->rad);
     discriminant = b * b - 4 * a * c;
-    
+
     if(discriminant > 0)
     {
         root_1 = ((-1 * b - sqrt(discriminant)) / (2 * a)) - 0.000001;
@@ -53,6 +53,6 @@ t_3dpt *sphere_get_normal_at(t_sphere *sphere, t_3dpt *pt)
 {
     t_3dpt *ret;
 
-    ret = add(pt, normal(multi(sphere->cnt, -1)));
+    ret = normal(add(pt, (multi(sphere->cnt, -1))));
     return (ret);
 }

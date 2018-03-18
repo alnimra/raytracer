@@ -19,8 +19,8 @@ void init_cam(t_cam **cam, t_3dpt *y)
     t_3dpt *right;
     t_3dpt *down;
 
-    pos = create_3dpt(3, 1.5, -4);
-    dir = normal(multi(sub(pos, create_3dpt(0, 0, 0)), -1));
+    pos = create_3dpt(3, -5, -9);
+    dir = normal(sub(create_3dpt(0, 0, 0), pos));
     right = normal(cross(y, dir));
     down = cross(right, dir);
     *cam = create_cam(pos, dir, right, down);
@@ -28,7 +28,7 @@ void init_cam(t_cam **cam, t_3dpt *y)
 
 void init_light(t_light **light, t_color *col)
 {
-    *light = create_light(create_3dpt(-7, 10, -10), col);
+    *light = create_light(create_3dpt(-7, -10, -10), col);
 }
 
 int get_winning_obj(double intersections[2])
@@ -151,7 +151,7 @@ t_color *get_color_at(t_3dpt *insct_pos, t_3dpt *insct_dir, t_obj **objs, int wi
         }
         i++;
     }
-    clip(rendered_color);
+    correct_color_leaks(rendered_color);
     return rendered_color;
 }
 void scenify(t_gl *gl, t_canvas *canvas)
@@ -161,7 +161,7 @@ void scenify(t_gl *gl, t_canvas *canvas)
     t_3dpt *x_a;
     t_3dpt *y_a;
     t_3dpt *z_a;
-    t_3dpt *o_a;
+    // t_3dpt *o_a;
     t_cam *cam;
     t_light *light;
     t_color *colors[5];
@@ -183,20 +183,20 @@ void scenify(t_gl *gl, t_canvas *canvas)
     lights[1] =  0;
     objs = (t_obj **)malloc(sizeof(t_obj *) * 2 + 1);
     colors[0] = create_color(1, 1, 1, 0);
-    colors[1] = create_color(0.5, 1.0, 0.5, 0.3);
+    colors[1] = create_color(0.5, 1.0, 0.5, 0.6);
     colors[2] = create_color(0.5, 0.5, 0.5, 0);
     colors[3] = create_color(0, 0, 0, 0);
     colors[4] = create_color(0.5, 0.25, 0.25, 0);
     x_a = create_3dpt(1, 0, 0);
     y_a = create_3dpt(0, 1, 0);
     z_a = create_3dpt(0, 0, 1);
-    o_a = create_3dpt(0, 0, 0);
+    // o_a = create_3dpt(0, 0, 0);
 
     init_cam(&cam, y_a);
     init_light(&light, colors[0]);
     lights[0] = light;
-    objs[0] = create_obj(create_sphere(o_a, 1, colors[1]), "sphere");
-    objs[1] = create_obj(create_plane(y_a, -1, colors[4]), "plane");
+    objs[0] = create_obj(create_sphere(create_3dpt(0,0,0), 1, colors[1]), "sphere");
+    objs[1] = create_obj(create_plane(create_3dpt(0,-1, 0), -1, colors[4]), "plane");
     objs[2] = 0;
     y = -1;
     cam_vec = create_vec(create_3dpt(0, 0, 0), create_3dpt(0, 0, 0));

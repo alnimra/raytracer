@@ -90,7 +90,7 @@ t_color *col_multi(t_color *color, double scalar);
 t_color *add_col(t_color *color1, t_color *color2);
 t_color *multi_col(t_color *color1, t_color *color2);
 t_color *avg_col(t_color *color1, t_color *color2);
-void clip(t_color *color);
+void correct_color_leaks(t_color *color);
 typedef struct		s_light
 {
 	t_3dpt	*org;

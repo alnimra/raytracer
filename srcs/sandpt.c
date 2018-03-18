@@ -19,7 +19,7 @@ t_3dpt *create_3dpt(double x, double y, double z)
     tmp = (t_3dpt *)malloc(sizeof(t_3dpt));
     tmp->coord[0] = x;
     tmp->coord[1] = y;
-    tmp->coord[2] = z; 
+    tmp->coord[2] = z;
     return (tmp);
 }
 

@@ -20,7 +20,7 @@ double find_intersection_plane(t_plane *plane, t_vec *vec)
     a = dot(plane->normal, vec->comp[1]);
     if (a == 0)
         return (-1);
-    b = dot(plane->normal, multi(add(vec->comp[0], multi(plane->normal, plane->dist)), -1));
+    b = dot(plane->normal, sub(vec->comp[0], multi(plane->normal, plane->dist)));
     return (-1 * (b / a));
 }
 

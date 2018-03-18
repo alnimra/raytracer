@@ -49,7 +49,7 @@ t_color *avg_col(t_color *color1, t_color *color2)
     return create_color((color1->prop[0] + color2->prop[0]) / 2, (color1->prop[1] + color2->prop[1]) / 2, (color1->prop[2] + color2->prop[2]) / 2, color1->prop[0]);
 }
 
-void clip(t_color *color)
+void correct_color_leaks(t_color *color)
 {
 	double all_light;
 	double exc_light;

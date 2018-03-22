@@ -6,11 +6,11 @@
 #    By: mray <marvin@42.fr>                        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/02/26 13:50:52 by mray              #+#    #+#              #
-#    Updated: 2018/03/15 15:45:25 by mray             ###   ########.fr        #
+#    Updated: 2018/03/18 11:38:50 by mray             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME	= rtv1
+NAME	= RTv1
 
 # src / obj files
 SRC		= main.c\
@@ -26,6 +26,7 @@ SRC		= main.c\
 		  sphere.c\
 		  plane.c\
 		  objects.c\
+		  parse.c\
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 

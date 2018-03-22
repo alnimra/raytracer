@@ -18,12 +18,20 @@
 # include <time.h>
 # define WIDTH  600
 # define HEIGHT 600
+
 typedef double v4sd __attribute__ ((vector_size (3 * sizeof(double))));
+typedef struct		s_obj
+{
+	void *obj;
+	char *type;
+}					t_obj;
+t_obj *create_obj(void *obj, char *type);
 typedef struct		s_gl
 {
 	void	*lib;
 	void	*surf;
 	double live_trans[5];
+	t_obj **obj_data;
 }					t_gl;
 t_gl				*create_gl(void *lib, void *surf);
 typedef struct		s_canvas
@@ -114,13 +122,9 @@ typedef struct		s_plane
 	double (*find_insct)(struct s_plane*, t_vec*);
 }					t_plane;
 t_plane *create_plane(t_3dpt *normal, double dist, t_color *col);
-typedef struct		s_obj
-{
-	void *obj;
-	char *type;
-}					t_obj;
-t_obj *create_obj(void *obj, char *type);
 void store_pix(t_canvas *canvas, int x, int y, unsigned int c);
 void store_color_pix(t_canvas *canvas, int x, int y, t_color *color);
 void scenify(t_gl *gl, t_canvas *canvas);
+char *read_in(char *filename);
+void parse_obj_data(t_gl *gl, char *data);
 #endif

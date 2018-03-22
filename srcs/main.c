@@ -12,8 +12,8 @@
 
 #include "rtv1.h"
 
-int x = 0;
-int y = 0;
+int  x = 0;
+int  y = 0;
 void store_pix(t_canvas *canvas, int x, int y, unsigned int c)
 {
 	int i;
@@ -36,9 +36,9 @@ void store_color_pix(t_canvas *canvas, int x, int y, t_color *color)
 
 int main(int argc, char **argv)
 {
-	t_gl *gl;
-	void *mlx;
-	void *window;
+	t_gl *	gl;
+	void *	mlx;
+	void *	window;
 	t_canvas *canvas;
 	t_params *para;
 	t_inputs *inputs;
@@ -54,6 +54,9 @@ int main(int argc, char **argv)
 		para->p1 = gl;
 		para->p2 = canvas;
 		para->p3 = inputs;
+		ft_putstr("hello");
+		parse_obj_data(gl, read_in(argv[1]));
+		ft_putendl("Entering Scenify");
 		scenify(gl, canvas);
 		// mlx_hook(gl->surf, 2, 0, key_handler, para);
 		// mlx_hook(gl->surf, 4, 0, mouse_handler, para);

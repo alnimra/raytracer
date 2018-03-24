@@ -57,7 +57,7 @@ double find_intersection_cone(t_cone *cone, t_vec *vec)
 	return (-1);
 }
 
-t_cone *create_cone(t_3dpt *org, t_3dpt *dir, double tilt, t_color *col)
+t_cone *create_cone(t_3dpt org, t_3dpt dir, double tilt, t_color col)
 {
 	t_cone *tmp;
 
@@ -70,9 +70,9 @@ t_cone *create_cone(t_3dpt *org, t_3dpt *dir, double tilt, t_color *col)
 	return (tmp);
 }
 
-t_3dpt *cone_get_normal_at(t_cone *cone, t_3dpt *pt)
+t_3dpt cone_get_normal_at(t_cone *cone, t_3dpt pt)
 {
-	t_3dpt *norm;
+	t_3dpt norm;
 
 	norm = sub(pt, cone->vec->comp[0]);
 	norm = normal(

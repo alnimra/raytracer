@@ -12,6 +12,7 @@
 
 #include "rtv1.h"
 #include <stdio.h>
+
 void errorify(char *str)
 {
 	ft_putstr(str);
@@ -48,12 +49,10 @@ void add_to_overall_obj_data(t_gl *gl, char **obj_data, int j)
 {
 	char ** held_data;
 	char ** held_data2;
-	t_3dpt *one;
-	t_3dpt *two;
+	t_3dpt one;
+	t_3dpt two;
 	double  a;
 
-	one = NULL;
-	two = NULL;
 	gl->obj_data[j] = (t_obj *)malloc(sizeof(t_obj));
 	if (ft_strcmp(obj_data[0], "sphere") == 0)
 	{

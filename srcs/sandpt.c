@@ -12,35 +12,44 @@
 
 #include "rtv1.h"
 
-t_3dpt *create_3dpt(double x, double y, double z)
+t_3dpt create_3dpt(double x, double y, double z)
 {
-    t_3dpt *tmp;
-
-    tmp = (t_3dpt *)malloc(sizeof(t_3dpt));
-    tmp->coord[0] = x;
-    tmp->coord[1] = y;
-    tmp->coord[2] = z;
-    return (tmp);
+	return ((t_3dpt){x, y, z});
 }
 
-void    set3dpt(t_3dpt *pt, double x, double y, double z)
+void set3dpt(t_3dpt *pt, double x, double y, double z)
 {
-    pt->coord[0] = x;
-    pt->coord[1] = y;
-    pt->coord[2] = z;
+	(*pt)[0] = x;
+	(*pt)[1] = y;
+	(*pt)[2] = z;
 }
 
-double get_x(t_3dpt *pt)
+double mag(t_3dpt pt)
 {
-    return (pt->coord[0]);
+	t_3dpt squares;
+	squares = pt * pt;
+	return (sqrt(squares[0] + squares[1] + squares[2]));
 }
 
-double get_y(t_3dpt *pt)
+t_3dpt normal(t_3dpt pt)
 {
-    return (pt->coord[1]);
+	double m;
+	t_3dpt normals;
+	t_3dpt mags;
+
+	m = mag(pt);
+	mags = create_3dpt(m, m, m);
+	normals = pt / mags;
+	return (normals);
 }
 
-double get_z(t_3dpt *pt)
+
+t_3dpt multi(t_3dpt pt, double scalar)
 {
-    return (pt->coord[2]);
+    t_3dpt scaled;
+    t_3dpt scalars;
+
+	scalars = create_3dpt(scalar, scalar, scalar);
+    scaled = pt * scalars;
+    return (scaled);
 }

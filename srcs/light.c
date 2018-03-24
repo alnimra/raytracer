@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-t_light *create_light(t_3dpt *org, t_color *col)
+t_light *create_light(t_3dpt org, t_color col)
 {
     t_light *tmp;
 

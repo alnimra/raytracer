@@ -20,7 +20,6 @@ SRC		= main.c\
 		  structs.c\
 		  vec.c\
 		  sandpt_2.c\
-		  sandpt_3.c\
 		  light.c\
 		  color.c\
 		  sphere.c\
@@ -29,12 +28,13 @@ SRC		= main.c\
 		  parse.c\
 		  cylinder.c\
 		  cone.c\
+		  pix.c\
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
 # compiler
 CC		= gcc
-CFLAGS	= -Wall -Wextra -Werror -g
+CFLAGS	= -Wall -Wextra -Werror -g -fsanitize=leak
 
 # mlx library
 MLX		= ./miniLibX/
@@ -68,7 +68,7 @@ $(MLX_LIB):
 	make -C $(MLX)
 
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) $(MLX_LNK) $(FT_LNK) -lm -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJ) $(MLX_LNK) $(FT_LNK) -lm -o $(NAME)
 
 clean:
 	rm -rf $(OBJDIR)

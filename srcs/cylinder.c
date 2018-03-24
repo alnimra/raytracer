@@ -45,7 +45,7 @@ double find_intersection_cyl(t_cyl *cyl, t_vec *vec)
 	return (-1);
 }
 
-t_cyl *create_cyl(t_3dpt *org, t_3dpt *dir, double rad, t_color *col)
+t_cyl *create_cyl(t_3dpt org, t_3dpt dir, double rad, t_color col)
 {
 	t_cyl *tmp;
 
@@ -58,9 +58,9 @@ t_cyl *create_cyl(t_3dpt *org, t_3dpt *dir, double rad, t_color *col)
 	return (tmp);
 }
 
-t_3dpt *cyl_get_normal_at(t_cyl *cyl, t_3dpt *pt)
+t_3dpt cyl_get_normal_at(t_cyl *cyl, t_3dpt pt)
 {
-	t_3dpt *norm;
+	t_3dpt norm;
 
 	norm = sub(pt, cyl->vec->comp[0]);
 	norm =

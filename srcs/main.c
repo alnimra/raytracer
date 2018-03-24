@@ -12,28 +12,6 @@
 
 #include "rtv1.h"
 
-int  x = 0;
-int  y = 0;
-void store_pix(t_canvas *canvas, int x, int y, unsigned int c)
-{
-	int i;
-
-	i = (x * 4) + (y * canvas->size_line);
-	*(canvas->pix_data + i) = c;
-	*(canvas->pix_data + i + 1) = c >> 8;
-	*(canvas->pix_data + i + 2) = c >> 16;
-}
-
-void store_color_pix(t_canvas *canvas, int x, int y, t_color *color)
-{
-	int i;
-
-	i = (x * 4) + (y * canvas->size_line);
-	*(canvas->pix_data + i) = color->prop[0] * 255;
-	*(canvas->pix_data + i + 1) = color->prop[1] * 255;
-	*(canvas->pix_data + i + 2) = color->prop[2] * 255;
-}
-
 int main(int argc, char **argv)
 {
 	t_gl *	gl;
@@ -44,7 +22,6 @@ int main(int argc, char **argv)
 	t_inputs *inputs;
 	if (argc == 2)
 	{
-		argv[0] = 0;
 		para = (t_params *)malloc(sizeof(t_params));
 		inputs = (t_inputs *)malloc(sizeof(t_inputs));
 		mlx = mlx_init();

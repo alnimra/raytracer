@@ -13,11 +13,6 @@
 #include "rtv1.h"
 #include <stdio.h>
 
-void init_light(t_light **light, t_color *col)
-{
-	*light = create_light(create_3dpt(7, -10, -10), col);
-}
-
 int get_winning_obj(double *intersections, int size)
 {
 	int	i;
@@ -58,11 +53,12 @@ double find_inscts(t_obj **objs, int i, t_vec *v)
 	if (ft_strcmp(objs[i]->type, "cyl") == 0)
 		return (((t_cyl *)objs[i]->obj)->find_insct((t_cyl *)objs[i]->obj, v));
 	if (ft_strcmp(objs[i]->type, "cone") == 0)
-		return (((t_cone *)objs[i]->obj)->find_insct((t_cone *)objs[i]->obj, v));
+		return (
+			((t_cone *)objs[i]->obj)->find_insct((t_cone *)objs[i]->obj, v));
 	return (0.0);
 }
 
-t_color *get_color(t_obj **objs, int i)
+t_color get_color(t_obj **objs, int i)
 {
 	if (ft_strcmp(objs[i]->type, "sphere") == 0)
 		return (((t_sphere *)objs[i]->obj)->col);
@@ -72,31 +68,31 @@ t_color *get_color(t_obj **objs, int i)
 		return (((t_cyl *)objs[i]->obj)->col);
 	if (ft_strcmp(objs[i]->type, "cone") == 0)
 		return (((t_cone *)objs[i]->obj)->col);
-	return (NULL);
+	return ((t_color){0, 0, 0, 0});
 }
 
-t_3dpt *get_normal_at(t_obj **objs, int i, t_3dpt *pt)
+t_3dpt get_normal_at(t_obj **objs, int i, t_3dpt pt)
 {
 	if (ft_strcmp(objs[i]->type, "sphere") == 0)
 		return (sphere_get_normal_at((t_sphere *)objs[i]->obj, pt));
 	else if (ft_strcmp(objs[i]->type, "plane") == 0)
 		return (((t_plane *)objs[i]->obj)->normal);
 	else if (ft_strcmp(objs[i]->type, "cyl") == 0)
-		return (cyl_get_normal_at((t_cyl*)objs[i]->obj, pt));
+		return (cyl_get_normal_at((t_cyl *)objs[i]->obj, pt));
 	else if (ft_strcmp(objs[i]->type, "cone") == 0)
-		return (cone_get_normal_at((t_cone*)objs[i]->obj, pt));
-	return (NULL);
+		return (cone_get_normal_at((t_cone *)objs[i]->obj, pt));
+	return ((t_3dpt){0, 0, 0});
 }
 
-t_color *get_color_at(t_3dpt *insct_pos, t_3dpt *insct_dir, t_obj **objs,
-					  int winning_obj, t_light **light_sources, double accuracy,
-					  double ambient_light, int num_of_objs)
+t_color get_color_at(t_3dpt insct_pos, t_3dpt insct_dir, t_obj **objs,
+					 int winning_obj, t_light **light_sources, double accuracy,
+					 double ambient_light, int num_of_objs)
 {
-	int		 i;
-	t_color *winning_obj_color;
-	t_3dpt * winning_obj_normal;
-	t_3dpt * light_direction;
-	t_color *rendered_color;
+	int		i;
+	t_color winning_obj_color;
+	t_3dpt  winning_obj_normal;
+	t_3dpt  light_direction;
+	t_color rendered_color;
 	i = 0;
 	winning_obj_color = get_color(objs, winning_obj);
 	winning_obj_normal = get_normal_at(objs, winning_obj, insct_pos);
@@ -108,8 +104,8 @@ t_color *get_color_at(t_3dpt *insct_pos, t_3dpt *insct_dir, t_obj **objs,
 		double cos_angle = dot(winning_obj_normal, light_direction);
 		if (cos_angle > 0)
 		{
-			int		shadowed = 0;
-			t_3dpt *dist_to_light =
+			int	shadowed = 0;
+			t_3dpt dist_to_light =
 				normal(add(light_sources[i]->org, multi(insct_pos, -1)));
 			double dist_to_light_mag = mag(dist_to_light);
 			t_vec *shadow_vec = create_vec(
@@ -140,33 +136,32 @@ t_color *get_color_at(t_3dpt *insct_pos, t_3dpt *insct_dir, t_obj **objs,
 				// Apply shine
 				// ft_putstr("here");
 				// exit(1);
-				if (winning_obj_color->prop[3] > 0 &&
-					winning_obj_color->prop[3] <= 1)
+				if (winning_obj_color[3] > 0 && winning_obj_color[3] <= 1)
 				{
 					// Special 0-1
-					double  dot1 = dot(multi(winning_obj_normal, -1),
-									   multi(insct_dir, -1));
-					t_3dpt *scalar1 = multi(winning_obj_normal, dot1);
-					t_3dpt *add1 = add(scalar1, insct_dir);
-					t_3dpt *scalar2 = multi(add1, 2);
-					t_3dpt *add2 = add(multi(insct_dir, -1), scalar2);
-					t_3dpt *reflection_dir = normal(add2);
+					double dot1 = dot(multi(winning_obj_normal, -1),
+									  multi(insct_dir, -1));
+					t_3dpt scalar1 = multi(winning_obj_normal, dot1);
+					t_3dpt add1 = add(scalar1, insct_dir);
+					t_3dpt scalar2 = multi(add1, 2);
+					t_3dpt add2 = add(multi(insct_dir, -1), scalar2);
+					t_3dpt reflection_dir = normal(add2);
 
 					double specular = dot(reflection_dir, light_direction);
 					if (specular > 0)
 					{
 						specular = pow(specular, 10);
-						rendered_color = add_col(
-							rendered_color,
-							col_multi(light_sources[i]->col,
-									  specular * winning_obj_color->prop[3]));
+						rendered_color =
+							add_col(rendered_color,
+									col_multi(light_sources[i]->col,
+											  specular * winning_obj_color[3]));
 					}
 				}
 			}
 		}
 		i++;
 	}
-	correct_color_leaks(rendered_color);
+	correct_color_leaks(&rendered_color);
 	return rendered_color;
 }
 int get_num_of_visi_objs(t_gl *gl)
@@ -214,11 +209,10 @@ void init_objs(t_gl *gl, t_obj ***objs_place, t_light ***lights, t_cam **cam)
 
 	num_of_visi_objs = get_num_of_visi_objs(gl);
 	num_of_lights = get_num_of_lights(gl);
-	*objs_place = (t_obj **)malloc(sizeof(t_obj *) * num_of_visi_objs + 1);
+	*objs_place =
+		(t_obj **)ft_memalloc(sizeof(t_obj *) * (num_of_visi_objs + 1));
 	ft_putnbr(num_of_visi_objs);
-	(*objs_place)[num_of_visi_objs] = 0;
-	*lights = (t_light **)malloc(sizeof(t_light *) * num_of_lights + 1);
-	(*lights)[num_of_lights] = 0;
+	*lights = (t_light **)ft_memalloc(sizeof(t_light *) * (num_of_lights + 1));
 	i = 0;
 	j = 0;
 	k = 0;
@@ -232,13 +226,14 @@ void init_objs(t_gl *gl, t_obj ***objs_place, t_light ***lights, t_cam **cam)
 		else if (ft_strcmp(gl->obj_data[i]->type, "cam") == 0)
 		{
 			*cam = (t_cam *)gl->obj_data[i]->obj;
-			(*cam)->prop[2] = normal(cross(create_3dpt(0, 1, 0), (*cam)->prop[1]));
+			(*cam)->prop[2] =
+				normal(cross(create_3dpt(0, 1, 0), (*cam)->prop[1]));
 			(*cam)->prop[3] = cross((*cam)->prop[2], (*cam)->prop[1]);
 		}
-		else if(ft_strcmp(gl->obj_data[i]->type, "sphere") == 0 ||
-			ft_strcmp(gl->obj_data[i]->type, "plane") == 0 ||
-			ft_strcmp(gl->obj_data[i]->type, "cyl") == 0 ||
-			ft_strcmp(gl->obj_data[i]->type, "cone") == 0)
+		else if (ft_strcmp(gl->obj_data[i]->type, "sphere") == 0 ||
+				 ft_strcmp(gl->obj_data[i]->type, "plane") == 0 ||
+				 ft_strcmp(gl->obj_data[i]->type, "cyl") == 0 ||
+				 ft_strcmp(gl->obj_data[i]->type, "cone") == 0)
 		{
 			((*objs_place)[j]) = gl->obj_data[i];
 			j++;
@@ -249,42 +244,26 @@ void init_objs(t_gl *gl, t_obj ***objs_place, t_light ***lights, t_cam **cam)
 
 void scenify(t_gl *gl, t_canvas *canvas)
 {
-	int		x;
-	int		y;
-	t_3dpt *x_a;
-	t_3dpt *y_a;
-	t_3dpt *z_a;
+	int x;
+	int y;
 	// t_3dpt *o_a;
 	t_cam *   cam;
-	t_color * colors[5];
 	t_vec *   cam_vec;
 	double	aspect_ratio = (double)WIDTH / (double)HEIGHT;
 	double	ambient_light = 0.2;
 	double	accuracy = 0.00000001;
 	double	xamnt;
 	double	yamnt;
-	double	org[3];
-	double	dir[3];
-	t_3dpt *  cam_vec_dir;
+	t_3dpt	cam_vec_dir;
 	int		  intersection_i;
-	int num_of_visi_objs;
-	double	*intersections;
+	int		  num_of_visi_objs;
+	double *  intersections;
 	int		  winning_obj;
 	t_obj **  objs;
 	t_light **lights;
 	ft_putendl("HERE");
-	intersections = (double*)ft_memalloc(sizeof(double) * get_num_of_visi_objs(gl));
 	num_of_visi_objs = get_num_of_visi_objs(gl);
 	init_objs(gl, &objs, &lights, &cam);
-	colors[0] = create_color(1, 1, 1, 0);
-	colors[1] = create_color(0.5, 1.0, 0.5, 0.6);
-	colors[2] = create_color(0.5, 0.5, 0.5, 0);
-	colors[3] = create_color(0, 0, 0, 0);
-	colors[4] = create_color(0.5, 0.25, 0.25, 0.3);
-	x_a = create_3dpt(1, 0, 0);
-	y_a = create_3dpt(0, 1, 0);
-	z_a = create_3dpt(0, 0, 1);
-	// o_a = create_3dpt(0, 0, 0);
 	y = -1;
 	cam_vec = create_vec(create_3dpt(0, 0, 0), create_3dpt(0, 0, 0));
 	while (++y < HEIGHT)
@@ -292,6 +271,8 @@ void scenify(t_gl *gl, t_canvas *canvas)
 		x = -1;
 		while (++x < WIDTH)
 		{
+			intersections =
+				(double *)ft_memalloc(sizeof(double) * num_of_visi_objs);
 			if (WIDTH > HEIGHT)
 			{
 				xamnt = ((x + 0.5) / WIDTH * aspect_ratio -
@@ -309,17 +290,10 @@ void scenify(t_gl *gl, t_canvas *canvas)
 				xamnt = (x + 0.5) / WIDTH;
 				yamnt = ((HEIGHT - y) + 0.5) / HEIGHT;
 			}
-			org[0] = cam->prop[0]->coord[0];
-			org[1] = cam->prop[0]->coord[1];
-			org[2] = cam->prop[0]->coord[2];
-			// Leaksss
 			cam_vec_dir = normal(
 				add(cam->prop[1], add(multi(cam->prop[2], xamnt - 0.5),
 									  multi(cam->prop[3], yamnt - 0.5))));
-			dir[0] = cam_vec_dir->coord[0];
-			dir[1] = cam_vec_dir->coord[1];
-			dir[2] = cam_vec_dir->coord[2];
-			set_vec(cam_vec, org, dir);
+			set_vec(cam_vec, cam->prop[0], cam_vec_dir);
 			intersection_i = 0;
 			while (objs[intersection_i])
 			{
@@ -332,17 +306,22 @@ void scenify(t_gl *gl, t_canvas *canvas)
 				store_pix(canvas, x, y, 0);
 			else
 			{
-				t_3dpt *insct_pos =
+				t_3dpt insct_pos =
 					add(cam_vec->comp[0],
 						multi(cam_vec->comp[1], intersections[winning_obj]));
-				t_3dpt *insct_dir = cam_vec->comp[1];
+				t_3dpt insct_dir = cam_vec->comp[1];
 				store_color_pix(canvas, x, y,
 								get_color_at(insct_pos, insct_dir, objs,
 											 winning_obj, lights, accuracy,
 											 ambient_light, num_of_visi_objs));
 			}
+			free(intersections);
 			// printf("%d", winning_obj);
 		}
 	}
+	free(cam_vec);
+	free(cam);
+	free(lights);
+	free(objs);
 	mlx_put_image_to_window(gl->lib, gl->surf, canvas->img, 0, 0);
 }

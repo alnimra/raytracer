@@ -24,7 +24,7 @@ double find_intersection_plane(t_plane *plane, t_vec *vec)
     return (-1 * (b / a));
 }
 
-t_plane *create_plane(t_3dpt *normal, double dist, t_color *col)
+t_plane *create_plane(t_3dpt normal, double dist, t_color col)
 {
     t_plane *tmp;
 

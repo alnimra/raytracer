@@ -1,0 +1,61 @@
+For cynlinder with org, dir and rad
+
+and vector with compeonents <org, dir>
+
+q.a = vsqr(vdiff(ray.dir, vmult(u.cylinder.dir, vdot(ray.dir,
+					u.cylinder.dir))));
+q.b = 2 * vdot(vdiff(ray.dir, vmult(u.cylinder.dir, vdot(ray.dir,
+					u.cylinder.dir))), vdiff(vdiff(ray.origin, u.cylinder.pos), vmult(
+					u.cylinder.dir, vdot(vdiff(ray.origin, u.cylinder.pos), u.cylinder.dir))));
+q.c = vsqr(vdiff(vdiff(ray.origin, u.cylinder.pos), vmult(u.cylinder.dir,
+				vdot(vdiff(ray.origin, u.cylinder.pos), u.cylinder.dir)))) -
+u.cylinder.radius * u.cylinder.radius;
+if ((q.d = q.b * q.b - 4 * q.a * q.c) < 0)
+	return (-1);
+	q.rslt[0] = (-q.b - sqrt(q.d)) / (2 * q.a);
+	q.rslt[1] = (-q.b + sqrt(q.d)) / (2 * q.a);
+	return (pickinter(q.rslt[0], q.rslt[1]));
+
+
+inline t_vect	cone_norm(t_union u, t_vect point)
+{
+		t_vect	normal;
+
+			normal = vdiff(point, u.cone.pos);
+				normal = vdiff(normal, vmult(u.cone.dir, vdot(u.cone.dir, normal)));
+					return (normalize(normal));
+}
+
+inline t_vect	cylinder_norm(t_union u, t_vect point)
+{
+		t_vect	normal;
+
+			normal = vdiff(point, u.cylinder.pos);
+				normal = vdiff(normal, vmult(u.cylinder.dir, vdot(u.cylinder.dir,
+									normal)));
+					return (normalize(normal));
+}
+
+
+
+
+	For cone 
+
+	cos_a = cos(u.cone.a);
+	sin_a = sin(u.cone.a);
+	q.a = pow(cos_a, 2) * vsqr(vdiff(ray.dir, vmult(u.cone.dir, vdot(ray.dir,
+						u.cone.dir)))) - pow(sin_a, 2) * vdot(ray.dir, u.cone.dir) *
+	vdot(ray.dir, u.cone.dir);
+	q.b = 2 * pow(cos_a, 2) * vdot(vdiff(ray.dir, vmult(u.cone.dir, vdot(
+						ray.dir, u.cone.dir))), vdiff(vdiff(ray.origin, u.cone.pos), vmult(u.cone.dir,
+						vdot(vdiff(ray.origin, u.cone.pos), u.cone.dir)))) - 2 * pow(sin_a, 2) * vdot(
+				ray.dir, u.cone.dir) * vdot(vdiff(ray.origin, u.cone.pos), u.cone.dir);
+						q.c = pow(cos_a, 2) * vsqr(vdiff(vdiff(ray.origin, u.cone.pos), vmult(
+										u.cone.dir, vdot(vdiff(ray.origin, u.cone.pos), u.cone.dir)))) - pow(sin_a, 2) *
+						vdot(vdiff(ray.origin, u.cone.pos), u.cone.dir) * vdot(
+								vdiff(ray.origin, u.cone.pos), u.cone.dir);
+if ((q.d = q.b * q.b - 4 * q.a * q.c) < 0)
+	return (-1);
+	q.rslt[0] = (-q.b - sqrt(q.d)) / (2 * q.a);
+	q.rslt[1] = (-q.b + sqrt(q.d)) / (2 * q.a);
+	return (pickinter(q.rslt[0], q.rslt[1]));

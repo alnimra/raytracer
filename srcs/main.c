@@ -58,10 +58,6 @@ int main(int argc, char **argv)
 		parse_obj_data(gl, read_in(argv[1]));
 		ft_putendl("Entering Scenify");
 		scenify(gl, canvas);
-		// mlx_hook(gl->surf, 2, 0, key_handler, para);
-		// mlx_hook(gl->surf, 4, 0, mouse_handler, para);
-		// mlx_hook(gl->surf, 6, 0, hover_handler, para);
-		// draw_frac(gl, canvas);ß
 		mlx_loop(gl->lib);
 	}
 }

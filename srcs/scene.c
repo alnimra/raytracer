@@ -12,19 +12,6 @@
 
 #include "rtv1.h"
 #include <stdio.h>
-void init_cam(t_cam **cam, t_3dpt *y)
-{
-	t_3dpt *pos;
-	t_3dpt *dir;
-	t_3dpt *right;
-	t_3dpt *down;
-
-	pos = create_3dpt(3, -5, -10);
-	dir = normal(sub(create_3dpt(0, 0, 0), pos));
-	right = normal(cross(y, dir));
-	down = cross(right, dir);
-	*cam = create_cam(pos, dir, right, down);
-}
 
 void init_light(t_light **light, t_color *col)
 {
@@ -68,6 +55,10 @@ double find_inscts(t_obj **objs, int i, t_vec *v)
 	if (ft_strcmp(objs[i]->type, "plane") == 0)
 		return (
 			((t_plane *)objs[i]->obj)->find_insct((t_plane *)objs[i]->obj, v));
+	if (ft_strcmp(objs[i]->type, "cyl") == 0)
+		return (((t_cyl *)objs[i]->obj)->find_insct((t_cyl *)objs[i]->obj, v));
+	if (ft_strcmp(objs[i]->type, "cone") == 0)
+		return (((t_cone *)objs[i]->obj)->find_insct((t_cone *)objs[i]->obj, v));
 	return (0.0);
 }
 
@@ -77,6 +68,10 @@ t_color *get_color(t_obj **objs, int i)
 		return (((t_sphere *)objs[i]->obj)->col);
 	if (ft_strcmp(objs[i]->type, "plane") == 0)
 		return (((t_plane *)objs[i]->obj)->col);
+	if (ft_strcmp(objs[i]->type, "cyl") == 0)
+		return (((t_cyl *)objs[i]->obj)->col);
+	if (ft_strcmp(objs[i]->type, "cone") == 0)
+		return (((t_cone *)objs[i]->obj)->col);
 	return (NULL);
 }
 
@@ -86,6 +81,10 @@ t_3dpt *get_normal_at(t_obj **objs, int i, t_3dpt *pt)
 		return (sphere_get_normal_at((t_sphere *)objs[i]->obj, pt));
 	else if (ft_strcmp(objs[i]->type, "plane") == 0)
 		return (((t_plane *)objs[i]->obj)->normal);
+	else if (ft_strcmp(objs[i]->type, "cyl") == 0)
+		return (cyl_get_normal_at((t_cyl*)objs[i]->obj, pt));
+	else if (ft_strcmp(objs[i]->type, "cone") == 0)
+		return (cone_get_normal_at((t_cone*)objs[i]->obj, pt));
 	return (NULL);
 }
 
@@ -180,7 +179,9 @@ int get_num_of_visi_objs(t_gl *gl)
 	while (gl->obj_data[i])
 	{
 		if (ft_strcmp(gl->obj_data[i]->type, "sphere") == 0 ||
-			ft_strcmp(gl->obj_data[i]->type, "plane") == 0)
+			ft_strcmp(gl->obj_data[i]->type, "plane") == 0 ||
+			ft_strcmp(gl->obj_data[i]->type, "cyl") == 0 ||
+			ft_strcmp(gl->obj_data[i]->type, "cone") == 0)
 			count++;
 		i++;
 	}
@@ -234,7 +235,10 @@ void init_objs(t_gl *gl, t_obj ***objs_place, t_light ***lights, t_cam **cam)
 			(*cam)->prop[2] = normal(cross(create_3dpt(0, 1, 0), (*cam)->prop[1]));
 			(*cam)->prop[3] = cross((*cam)->prop[2], (*cam)->prop[1]);
 		}
-		else
+		else if(ft_strcmp(gl->obj_data[i]->type, "sphere") == 0 ||
+			ft_strcmp(gl->obj_data[i]->type, "plane") == 0 ||
+			ft_strcmp(gl->obj_data[i]->type, "cyl") == 0 ||
+			ft_strcmp(gl->obj_data[i]->type, "cone") == 0)
 		{
 			((*objs_place)[j]) = gl->obj_data[i];
 			j++;
@@ -281,7 +285,6 @@ void scenify(t_gl *gl, t_canvas *canvas)
 	y_a = create_3dpt(0, 1, 0);
 	z_a = create_3dpt(0, 0, 1);
 	// o_a = create_3dpt(0, 0, 0);
-	init_cam(&cam, y_a);
 	y = -1;
 	cam_vec = create_vec(create_3dpt(0, 0, 0), create_3dpt(0, 0, 0));
 	while (++y < HEIGHT)
@@ -324,7 +327,6 @@ void scenify(t_gl *gl, t_canvas *canvas)
 					find_inscts(objs, intersection_i, cam_vec);
 				intersection_i++;
 			}
-			printf("%f", intersections[1]);
 			winning_obj = get_winning_obj(intersections, num_of_visi_objs);
 			if (winning_obj == -1)
 				store_pix(canvas, x, y, 0);
@@ -334,7 +336,6 @@ void scenify(t_gl *gl, t_canvas *canvas)
 					add(cam_vec->comp[0],
 						multi(cam_vec->comp[1], intersections[winning_obj]));
 				t_3dpt *insct_dir = cam_vec->comp[1];
-
 				store_color_pix(canvas, x, y,
 								get_color_at(insct_pos, insct_dir, objs,
 											 winning_obj, lights, accuracy,

@@ -27,6 +27,8 @@ SRC		= main.c\
 		  plane.c\
 		  objects.c\
 		  parse.c\
+		  cylinder.c\
+		  cone.c\
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 

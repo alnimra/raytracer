@@ -27,3 +27,8 @@ t_3dpt *sub(t_3dpt *pt1, t_3dpt *pt2)
     subtraction = pt1->coord - pt2->coord;
     return (create_3dpt(subtraction[0], subtraction[1], subtraction[2]));
 }
+
+double squ(t_3dpt *pt)
+{
+	return (dot(pt, pt));
+}

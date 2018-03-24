@@ -71,6 +71,7 @@ double dot(t_3dpt *pt1, t_3dpt *pt2);
 t_3dpt *cross(t_3dpt *pt1, t_3dpt *pt2);
 t_3dpt *add(t_3dpt *pt1, t_3dpt *pt2);
 t_3dpt *sub(t_3dpt *pt1, t_3dpt *pt2);
+double squ(t_3dpt *pt);
 typedef struct		s_vec
 {
 	t_3dpt	*comp[2];
@@ -127,4 +128,22 @@ void store_color_pix(t_canvas *canvas, int x, int y, t_color *color);
 void scenify(t_gl *gl, t_canvas *canvas);
 char *read_in(char *filename);
 void parse_obj_data(t_gl *gl, char *data);
+typedef struct		s_cyl
+{
+	t_vec *vec;
+	double	rad;
+	t_color	*col;
+	double (*find_insct)(struct s_cyl*, t_vec*);
+}					t_cyl;
+t_cyl *create_cyl(t_3dpt *org, t_3dpt *dir, double rad, t_color *col);
+t_3dpt *cyl_get_normal_at(t_cyl *cyl, t_3dpt *pt);
+typedef struct		s_cone
+{
+	t_vec *vec;
+	double tilt;
+	t_color	*col;
+	double (*find_insct)(struct s_cone*, t_vec*);
+}					t_cone;
+t_cone *create_cone(t_3dpt *org, t_3dpt *dir, double height, t_color *col);
+t_3dpt *cone_get_normal_at(t_cone *cone, t_3dpt *pt);
 #endif

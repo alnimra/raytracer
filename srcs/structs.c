@@ -33,6 +33,7 @@ t_canvas	*create_canvas(t_gl *gl)
 
 	tmp = ft_memalloc(sizeof(t_canvas));
 	tmp->img = mlx_new_image(gl->lib, WIDTH, HEIGHT);
-	tmp->pix_data = mlx_get_data_addr(tmp->img, &(tmp->byte_size), &(tmp->size_line), &(tmp->endian));
+	tmp->pix_data = mlx_get_data_addr(tmp->img, &(tmp->byte_size),
+&(tmp->size_line), &(tmp->endian));
 	return (tmp);
 }

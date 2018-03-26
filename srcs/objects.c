@@ -12,12 +12,12 @@
 
 #include "rtv1.h"
 
-t_obj *create_obj(void *obj, char *type)
+t_obj	*create_obj(void *obj, char *type)
 {
-    t_obj *tmp;
+	t_obj *tmp;
 
-    tmp = (t_obj *)malloc(sizeof(t_obj));
-    tmp->obj  = obj;
-    tmp->type = type;
-    return (tmp);
+	tmp = (t_obj *)malloc(sizeof(t_obj));
+	tmp->obj = obj;
+	tmp->type = type;
+	return (tmp);
 }

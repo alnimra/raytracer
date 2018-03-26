@@ -12,7 +12,7 @@
 
 #include "rtv1.h"
 
-void store_pix(t_canvas *canvas, int x, int y, unsigned int c)
+void	store_pix(t_canvas *canvas, int x, int y, unsigned int c)
 {
 	int i;
 
@@ -22,7 +22,7 @@ void store_pix(t_canvas *canvas, int x, int y, unsigned int c)
 	*(canvas->pix_data + i + 2) = c >> 16;
 }
 
-void store_color_pix(t_canvas *canvas, int x, int y, t_color color)
+void	store_color_pix(t_canvas *canvas, int x, int y, t_color color)
 {
 	int i;
 

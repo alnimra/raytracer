@@ -22,6 +22,7 @@ SRC		= main.c\
 		  sandpt_2.c\
 		  light.c\
 		  color.c\
+		  color_2.c\
 		  sphere.c\
 		  plane.c\
 		  objects.c\
@@ -29,12 +30,15 @@ SRC		= main.c\
 		  cylinder.c\
 		  cone.c\
 		  pix.c\
+		  rt_math_helper.c\
+		  rt_math_helper_2.c\
+		  rt_math_helper_3.c\
 
 OBJ		= $(addprefix $(OBJDIR),$(SRC:.c=.o))
 
 # compiler
 CC		= gcc
-CFLAGS	= -Wall -Wextra -Werror -g -fsanitize=leak
+CFLAGS	= -Wall -Wextra -Werror -g
 
 # mlx library
 MLX		= ./miniLibX/

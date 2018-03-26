@@ -11,224 +11,66 @@
 /* ************************************************************************** */
 
 #include "rtv1.h"
-#include <stdio.h>
 
-void errorify(char *str)
+void	errorify(char *str)
 {
 	ft_putstr(str);
 	exit(1);
 }
 
-char *read_in(char *filename)
+char	*read_in(char *filename)
 {
-	int   fd;
-	int   byte_size;
-	char *str;
-	char *line;
-	char *tmp;
+	int		fd;
+	int		byte_size;
+	char	*str;
+	char	*line;
+	char	*tmp;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 		errorify("File opening error");
 	str = ft_strdup("");
+	line = NULL;
 	while ((byte_size = get_next_line(fd, &line) > 0))
 	{
 		tmp = line;
 		line = ft_strjoin(line, "\n");
-		if (tmp)
-			free(tmp);
+		ft_memdel((void **)&tmp);
 		tmp = str;
 		str = ft_strjoin(str, line);
-		if (tmp)
-			free(tmp);
+		ft_memdel((void **)&tmp);
+		if (line)
+			ft_memdel((void **)&line);
 	}
-	return str;
+	if (line)
+		ft_memdel((void **)&line);
+	return (str);
 }
 
-void add_to_overall_obj_data(t_gl *gl, char **obj_data, int j)
+void	add_to_overall_obj_data(t_gl *gl, char **obj_data, int j)
 {
-	char ** held_data;
-	char ** held_data2;
-	t_3dpt one;
-	t_3dpt two;
-	double  a;
-
+	if (ft_strcmp(obj_data[0], "cam") == 0)
+		gl->cam_count++;
+	if (ft_strcmp(obj_data[0], "light") == 0)
+		gl->light_count++;
 	gl->obj_data[j] = (t_obj *)malloc(sizeof(t_obj));
 	if (ft_strcmp(obj_data[0], "sphere") == 0)
-	{
-		if (!obj_data[5])
-			errorify("Not a valid file");
-		gl->obj_data[j]->type = "sphere";
-		held_data = ft_strsplit(obj_data[1], ' ');
-		held_data2 = ft_strsplit(obj_data[4], ' ');
-		if (!held_data[2] || !held_data2[2])
-			errorify("Not a valid file");
-		one = create_3dpt(ft_atod(held_data[0]) + ft_atod(held_data2[0]),
-						  ft_atod(held_data[1]) + ft_atod(held_data2[1]),
-						  ft_atod(held_data[2]) + ft_atod(held_data2[2]));
-		free_array((void **)held_data);
-		free_array((void **)held_data2);
-		held_data = ft_strsplit(obj_data[2], ' ');
-		if (!held_data[0])
-			errorify("Not a valid file");
-		a = ft_atod(held_data[0]);
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[3], ' ');
-		if (!held_data[3])
-			errorify(" a valid file");
-		gl->obj_data[j]->obj = create_sphere(
-			one, a,
-			create_color(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						 ft_atod(held_data[2]), ft_atod(held_data[3])));
-		free_array((void **)held_data);
-	}
+		parse_sphere(gl, &obj_data, j);
 	else if (ft_strcmp(obj_data[0], "cyl") == 0)
-	{
-		if (!obj_data[6])
-			errorify("Not a valid file");
-		gl->obj_data[j]->type = "cyl";
-		held_data = ft_strsplit(obj_data[1], ' ');
-		held_data2 = ft_strsplit(obj_data[5], ' ');
-		if (!held_data[2] || !held_data2[2])
-			errorify("Not a valid file");
-		one = create_3dpt(ft_atod(held_data[0]) + ft_atod(held_data2[0]),
-						  ft_atod(held_data[1]) + ft_atod(held_data2[1]),
-						  ft_atod(held_data[2]) + ft_atod(held_data2[2]));
-		free_array((void **)held_data);
-		free_array((void **)held_data2);
-		held_data = ft_strsplit(obj_data[2], ' ');
-		held_data2 = ft_strsplit(obj_data[6], ' ');
-		if (!held_data[2] || !held_data2[2])
-			errorify("Not a valid file");
-		two = create_3dpt(ft_atod(held_data[0]) + ft_atod(held_data2[0]),
-						  ft_atod(held_data[1]) + ft_atod(held_data2[1]),
-						  ft_atod(held_data[2]) + ft_atod(held_data2[2]));
-		free_array((void **)held_data);
-		free_array((void **)held_data2);
-		held_data = ft_strsplit(obj_data[3], ' ');
-		if (!held_data[0])
-			errorify("Not a valid file");
-		a = ft_atod(held_data[0]);
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[4], ' ');
-		if (!held_data[3])
-			errorify(" a valid file");
-		gl->obj_data[j]->obj = create_cyl(
-			one, normal(two), a,
-			create_color(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						 ft_atod(held_data[2]), ft_atod(held_data[3])));
-		free_array((void **)held_data);
-	}
+		parse_cyl(gl, obj_data, j);
 	else if (ft_strcmp(obj_data[0], "cone") == 0)
-	{
-		if (!obj_data[6])
-			errorify("Not a valid file");
-		gl->obj_data[j]->type = "cone";
-		held_data = ft_strsplit(obj_data[1], ' ');
-		held_data2 = ft_strsplit(obj_data[5], ' ');
-		if (!held_data[2] || !held_data2[2])
-			errorify("Not a valid file");
-		one = create_3dpt(ft_atod(held_data[0]) + ft_atod(held_data2[0]),
-						  ft_atod(held_data[1]) + ft_atod(held_data2[1]),
-						  ft_atod(held_data[2]) + ft_atod(held_data2[2]));
-		free_array((void **)held_data);
-		free_array((void **)held_data2);
-		held_data = ft_strsplit(obj_data[2], ' ');
-		held_data2 = ft_strsplit(obj_data[6], ' ');
-		if (!held_data[2] || !held_data2[2])
-			errorify("Not a valid file");
-		two = create_3dpt(ft_atod(held_data[0]) + ft_atod(held_data2[0]),
-						  ft_atod(held_data[1]) + ft_atod(held_data2[1]),
-						  ft_atod(held_data[2]) + ft_atod(held_data2[2]));
-		free_array((void **)held_data);
-		free_array((void **)held_data2);
-		held_data = ft_strsplit(obj_data[3], ' ');
-		if (!held_data[0])
-			errorify("Not a valid file");
-		a = ft_atod(held_data[0]);
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[4], ' ');
-		if (!held_data[3])
-			errorify(" a valid file");
-		gl->obj_data[j]->obj = create_cone(
-			one, normal(two), a,
-			create_color(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						 ft_atod(held_data[2]), ft_atod(held_data[3])));
-		free_array((void **)held_data);
-	}
+		parse_cone(gl, obj_data, j);
 	else if (ft_strcmp(obj_data[0], "plane") == 0)
-	{
-		if (!obj_data[3])
-			errorify("Not a valid file");
-		gl->obj_data[j]->type = "plane";
-		held_data = ft_strsplit(obj_data[1], ' ');
-		if (!held_data[2])
-			errorify("Not a valid file");
-		one = create_3dpt(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						  ft_atod(held_data[2]));
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[2], ' ');
-		if (!held_data[0])
-			errorify("Not a valid file");
-		a = ft_atod(held_data[0]);
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[3], ' ');
-		if (!held_data[3])
-			errorify(" a valid file");
-		gl->obj_data[j]->obj = create_plane(
-			one, a,
-			create_color(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						 ft_atod(held_data[2]), ft_atod(held_data[3])));
-		free_array((void **)held_data);
-	}
+		parse_plane(gl, obj_data, j);
 	else if (ft_strcmp(obj_data[0], "light") == 0)
-	{
-		if (!obj_data[2])
-			errorify("Not a valid file");
-		gl->obj_data[j]->type = "light";
-		(gl->obj_data[j]->obj) = (t_light *)malloc(sizeof(t_light));
-		held_data = ft_strsplit(obj_data[1], ' ');
-		if (!held_data[2])
-			errorify("Not a valid file");
-		((t_light *)(gl->obj_data[j]->obj))->org =
-			create_3dpt(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						ft_atod(held_data[2]));
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[2], ' ');
-		if (!held_data[3])
-			errorify("Not a valid file");
-		((t_light *)(gl->obj_data[j]->obj))->col =
-			create_color(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						 ft_atod(held_data[2]), ft_atod(held_data[3]));
-		free_array((void **)held_data);
-	}
+		parse_light(gl, obj_data, j);
 	else if (ft_strcmp(obj_data[0], "cam") == 0)
-	{
-		if (!obj_data[2])
-			errorify("Not a valid file");
-		gl->obj_data[j]->type = "cam";
-		(gl->obj_data[j]->obj) = (t_cam *)malloc(sizeof(t_cam));
-		held_data = ft_strsplit(obj_data[1], ' ');
-		if (!held_data[2])
-			errorify("Not a valid file");
-		((t_cam *)(gl->obj_data[j]->obj))->prop[0] =
-			create_3dpt(ft_atod(held_data[0]), ft_atod(held_data[1]),
-						ft_atod(held_data[2]));
-		free_array((void **)held_data);
-		held_data = ft_strsplit(obj_data[2], ' ');
-		if (!held_data[2])
-			errorify("Not a valid file");
-		((t_cam *)(gl->obj_data[j]->obj))->prop[1] =
-			normal(sub(create_3dpt(ft_atoi(held_data[0]), ft_atoi(held_data[1]),
-								   ft_atoi(held_data[2])),
-					   ((t_cam *)(gl->obj_data[j]->obj))->prop[0]));
-		free_array((void **)held_data);
-	}
+		parse_cam(gl, obj_data, j);
 	else
 		errorify("Not a validi file");
 }
 
-int get_num_of_objs(char **obj_string_data_total)
+int		get_num_of_objs(char **obj_string_data_total)
 {
 	int j;
 
@@ -238,16 +80,17 @@ int get_num_of_objs(char **obj_string_data_total)
 	return (j);
 }
 
-void parse_obj_data(t_gl *gl, char *data)
+void	parse_obj_data(t_gl *gl, char *data)
 {
-	char **object_string_data_total;
-	char **obj_data;
-	int	i;
+	char	**object_string_data_total;
+	char	**obj_data;
+	int		i;
 
 	object_string_data_total = ft_strsplit(data, '\n');
-	ft_putstr(data);
+	gl->cam_count = 0;
+	gl->light_count = 0;
 	gl->obj_data = ft_memalloc(sizeof(t_obj *) *
-							   (get_num_of_objs(object_string_data_total) + 1));
+							(get_num_of_objs(object_string_data_total) + 1));
 	ft_putnbr(get_num_of_objs(object_string_data_total));
 	i = 0;
 	while (object_string_data_total[i])
@@ -258,6 +101,10 @@ void parse_obj_data(t_gl *gl, char *data)
 		free_array((void **)obj_data);
 		i++;
 	}
-	// printf((t_plane*)gl->obj_data[1]->obj)->normal->coord[0];
+	if (gl->cam_count != 1)
+		errorify("No cams man.");
+	if (gl->light_count <= 0)
+		errorify("How are you going to see if you don't add lights...");
 	free_array((void **)object_string_data_total);
+	free(data);
 }
